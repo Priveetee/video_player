@@ -1,4 +1,4 @@
-// src/components/VideoPlayer.tsx
+// src/components/VideoPlayer.tsx - VERSION CORRIGÉE
 import { useMemo } from "react";
 import type { VideoPlayerProps } from "../types";
 import { usePlayer } from "../hooks/usePlayer";
@@ -21,15 +21,21 @@ export const VideoPlayer = ({
     usePlayer(qualities);
 
   const handleContainerClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest(".settings-menu")) {
+    // Vérifier si on a cliqué sur un élément de contrôle
+    const target = e.target as HTMLElement;
+
+    // Exclure tous les éléments de contrôles
+    if (
+      target.closest(".settings-menu") ||
+      target.closest("button") ||
+      target.closest("input") ||
+      target.closest("[data-controls]") // On va ajouter cette class
+    ) {
       return;
     }
 
-    if (state.playing) {
-      actions.showControlsTemporarily();
-    } else {
-      actions.togglePlay();
-    }
+    // Si on clique ailleurs, toggle play
+    actions.togglePlay();
   };
 
   const handleVideoClick = (e: React.MouseEvent) => {
