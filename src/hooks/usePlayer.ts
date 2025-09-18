@@ -1,4 +1,4 @@
-// src/hooks/usePlayer.ts
+// src/hooks/usePlayer.ts - VERSION FINALE NETTOYÉE
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { PlayerState, VideoQuality } from "../types";
 
@@ -18,108 +18,115 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
     fullscreen: false,
     quality: qualities[0] || null,
     showControls: true,
-    loading: true,
+    loading: false,
   });
 
-  const togglePlay = useCallback(() => {
-    if (!videoRef.current) return;
+  const togglePlay = useCallback(async () => {
+    const video = videoRef.current;
+    if (!video) return;
 
-    if (state.playing) {
-      videoRef.current.pause();
-    } else {
-      videoRef.current.play();
+    try {
+      if (video.paused) {
+        await video.play();
+      } else {
+        video.pause();
+      }
+    } catch (error) {
+      console.error("Toggle play failed:", error);
     }
-  }, [state.playing]);
+  }, []);
 
   const toggleMute = useCallback(() => {
-    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
 
-    videoRef.current.muted = !state.muted;
-    setState((prev) => ({ ...prev, muted: !prev.muted }));
-  }, [state.muted]);
+    video.muted = !video.muted;
+  }, []);
 
   const setVolume = useCallback((volume: number) => {
-    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
 
-    videoRef.current.volume = volume;
-    videoRef.current.muted = volume === 0;
-    setState((prev) => ({ ...prev, volume, muted: volume === 0 }));
+    const clampedVolume = Math.max(0, Math.min(1, volume));
+    video.volume = clampedVolume;
+    if (clampedVolume === 0) {
+      video.muted = true;
+    } else if (video.muted) {
+      video.muted = false;
+    }
   }, []);
 
   const seek = useCallback((time: number) => {
-    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
 
-    videoRef.current.currentTime = time;
-    setState((prev) => ({ ...prev, currentTime: time }));
+    const clampedTime = Math.max(0, Math.min(time, video.duration || 0));
+    video.currentTime = clampedTime;
   }, []);
 
-  const skip = useCallback(
-    (seconds: number) => {
-      if (!videoRef.current) return;
+  const skip = useCallback((seconds: number) => {
+    const video = videoRef.current;
+    if (!video) return;
 
-      const newTime = Math.max(
-        0,
-        Math.min(videoRef.current.currentTime + seconds, state.duration),
-      );
-      videoRef.current.currentTime = newTime;
-      setState((prev) => ({ ...prev, currentTime: newTime }));
-    },
-    [state.duration],
-  );
+    const newTime = Math.max(
+      0,
+      Math.min(video.currentTime + seconds, video.duration || 0),
+    );
+    video.currentTime = newTime;
+  }, []);
 
   const changeSpeed = useCallback((speed: number) => {
-    if (!videoRef.current) return;
+    const video = videoRef.current;
+    if (!video) return;
 
-    videoRef.current.playbackRate = speed;
+    video.playbackRate = speed;
     setPlaybackSpeed(speed);
   }, []);
 
   const toggleFullscreen = useCallback(async () => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
     try {
       if (!document.fullscreenElement) {
-        await containerRef.current.requestFullscreen();
-        setState((prev) => ({ ...prev, fullscreen: true }));
+        await container.requestFullscreen();
       } else {
         await document.exitFullscreen();
-        setState((prev) => ({ ...prev, fullscreen: false }));
       }
     } catch (error) {
       console.error("Fullscreen error:", error);
     }
   }, []);
 
-  const changeQuality = useCallback(
-    (quality: VideoQuality) => {
-      if (!videoRef.current) return;
+  const changeQuality = useCallback((quality: VideoQuality) => {
+    const video = videoRef.current;
+    if (!video) return;
 
-      const currentTime = videoRef.current.currentTime;
-      const wasPlaying = state.playing;
-      const currentSpeed = videoRef.current.playbackRate;
+    const currentTime = video.currentTime;
+    const wasPlaying = !video.paused;
+    const currentSpeed = video.playbackRate;
 
-      setState((prev) => ({ ...prev, quality, loading: true }));
+    setState((prev) => ({ ...prev, quality, loading: true }));
 
-      videoRef.current.src = quality.url;
-      videoRef.current.load();
+    video.src = quality.url;
+    video.load();
 
-      const handleLoadedData = () => {
-        if (!videoRef.current) return;
+    const handleLoadedData = () => {
+      if (!video) return;
 
-        videoRef.current.currentTime = currentTime;
-        videoRef.current.playbackRate = currentSpeed;
+      video.currentTime = currentTime;
+      video.playbackRate = currentSpeed;
 
-        if (wasPlaying) {
-          videoRef.current.play();
-        }
-        setState((prev) => ({ ...prev, loading: false }));
-        videoRef.current.removeEventListener("loadeddata", handleLoadedData);
-      };
+      if (wasPlaying) {
+        video.play().catch(console.error);
+      }
 
-      videoRef.current.addEventListener("loadeddata", handleLoadedData);
-    },
-    [state.playing],
-  );
+      setState((prev) => ({ ...prev, loading: false }));
+      video.removeEventListener("loadeddata", handleLoadedData);
+    };
+
+    video.addEventListener("loadeddata", handleLoadedData);
+  }, []);
 
   const showControlsTemporarily = useCallback(() => {
     setState((prev) => ({ ...prev, showControls: true }));
@@ -129,61 +136,84 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
     }
 
     controlsTimeoutRef.current = setTimeout(() => {
-      if (state.playing) {
-        setState((prev) => ({ ...prev, showControls: false }));
-      }
+      setState((prev) =>
+        prev.playing ? { ...prev, showControls: false } : prev,
+      );
     }, 3000);
-  }, [state.playing]);
+  }, []);
 
+  // Event listeners unifiés
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const handlePlay = () => setState((prev) => ({ ...prev, playing: true }));
-    const handlePause = () => setState((prev) => ({ ...prev, playing: false }));
-    const handleLoadedData = () =>
-      setState((prev) => ({ ...prev, loading: false }));
-    const handleWaiting = () =>
-      setState((prev) => ({ ...prev, loading: true }));
-    const handleCanPlay = () =>
-      setState((prev) => ({ ...prev, loading: false }));
+    let mounted = true;
+
+    const safeSetState = (updates: Partial<PlayerState>) => {
+      if (mounted) {
+        setState((prev) => ({ ...prev, ...updates }));
+      }
+    };
+
+    const handlePlay = () => safeSetState({ playing: true, loading: false });
+    const handlePause = () => safeSetState({ playing: false });
+    const handleLoadStart = () => safeSetState({ loading: true });
+    const handleLoadedData = () => safeSetState({ loading: false });
+    const handleWaiting = () => safeSetState({ loading: true });
+    const handleCanPlay = () => safeSetState({ loading: false });
 
     const handleTimeUpdate = () => {
-      setState((prev) => ({
-        ...prev,
+      safeSetState({
         currentTime: video.currentTime,
         duration: video.duration || 0,
-      }));
+      });
     };
 
     const handleProgress = () => {
       if (video.buffered.length > 0) {
-        setState((prev) => ({
-          ...prev,
+        safeSetState({
           buffered: video.buffered.end(video.buffered.length - 1),
-        }));
+        });
       }
     };
 
+    const handleVolumeChange = () => {
+      safeSetState({
+        volume: video.volume,
+        muted: video.muted,
+      });
+    };
+
+    const handleError = () => safeSetState({ loading: false });
+
+    // Attacher les événements
     video.addEventListener("play", handlePlay);
     video.addEventListener("pause", handlePause);
-    video.addEventListener("timeupdate", handleTimeUpdate);
-    video.addEventListener("progress", handleProgress);
+    video.addEventListener("loadstart", handleLoadStart);
     video.addEventListener("loadeddata", handleLoadedData);
     video.addEventListener("waiting", handleWaiting);
     video.addEventListener("canplay", handleCanPlay);
+    video.addEventListener("timeupdate", handleTimeUpdate);
+    video.addEventListener("progress", handleProgress);
+    video.addEventListener("volumechange", handleVolumeChange);
+    video.addEventListener("error", handleError);
 
     return () => {
+      mounted = false;
       video.removeEventListener("play", handlePlay);
       video.removeEventListener("pause", handlePause);
-      video.removeEventListener("timeupdate", handleTimeUpdate);
-      video.removeEventListener("progress", handleProgress);
+      video.removeEventListener("loadstart", handleLoadStart);
       video.removeEventListener("loadeddata", handleLoadedData);
       video.removeEventListener("waiting", handleWaiting);
       video.removeEventListener("canplay", handleCanPlay);
+      video.removeEventListener("timeupdate", handleTimeUpdate);
+      video.removeEventListener("progress", handleProgress);
+      video.removeEventListener("volumechange", handleVolumeChange);
+      video.removeEventListener("error", handleError);
     };
   }, []);
 
+  // Fullscreen
   useEffect(() => {
     const handleFullscreenChange = () => {
       setState((prev) => ({
@@ -195,6 +225,15 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
     document.addEventListener("fullscreenchange", handleFullscreenChange);
     return () =>
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (controlsTimeoutRef.current) {
+        clearTimeout(controlsTimeoutRef.current);
+      }
+    };
   }, []);
 
   return {

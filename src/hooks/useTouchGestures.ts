@@ -1,6 +1,6 @@
 // src/hooks/useTouchGestures.ts
 import { useRef, useCallback } from "react";
-import type { TouchState } from "../types/player";
+import type { TouchState } from "../types"; // ← Corrigé
 
 export const useTouchGestures = (
   onSeek: (time: number) => void,
