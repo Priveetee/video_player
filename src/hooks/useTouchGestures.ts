@@ -1,6 +1,6 @@
 // src/hooks/useTouchGestures.ts
 import { useRef, useCallback } from "react";
-import type { TouchState } from "../types"; // ← Corrigé
+import type { TouchState } from "../types";
 
 export const useTouchGestures = (
   onSeek: (time: number) => void,
@@ -46,12 +46,13 @@ export const useTouchGestures = (
       if (!touchState.current.isDragging) {
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-        if (distance > 10) {
+        if (distance > 20) {
           touchState.current.isDragging = true;
           touchState.current.isVertical = Math.abs(deltaY) > Math.abs(deltaX);
           touchState.current.action = touchState.current.isVertical
             ? "volume"
             : "seek";
+          e.preventDefault();
         }
       }
 
@@ -63,7 +64,7 @@ export const useTouchGestures = (
           const newTime = touchState.current.startTime + progress * duration;
           onSeek(Math.max(0, Math.min(duration, newTime)));
         } else if (touchState.current.action === "volume") {
-          const volumeChange = -deltaY / 200;
+          const volumeChange = -deltaY / 300;
           const newVolume = Math.max(0, Math.min(1, volume + volumeChange));
           onVolumeChange(newVolume);
         }
@@ -74,15 +75,17 @@ export const useTouchGestures = (
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {
+      e.preventDefault();
+
       if (!touchState.current.isDragging) {
         const touch = e.changedTouches[0];
         const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
         const x = touch.clientX - rect.left;
         const width = rect.width;
 
-        if (x < width * 0.3) {
+        if (x < width * 0.25) {
           onSkip(-10);
-        } else if (x > width * 0.7) {
+        } else if (x > width * 0.75) {
           onSkip(10);
         } else {
           onTogglePlay();

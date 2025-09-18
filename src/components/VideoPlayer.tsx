@@ -1,7 +1,8 @@
-// src/components/VideoPlayer.tsx - VERSION CORRIGÉE
+// src/components/VideoPlayer.tsx
 import { useMemo } from "react";
 import type { VideoPlayerProps } from "../types";
 import { usePlayer } from "../hooks/usePlayer";
+import { useTouchGestures } from "../hooks/useTouchGestures";
 import { Controls } from "./Controls";
 
 export const VideoPlayer = ({
@@ -20,37 +21,68 @@ export const VideoPlayer = ({
   const { videoRef, containerRef, state, playbackSpeed, actions } =
     usePlayer(qualities);
 
-  const handleContainerClick = (e: React.MouseEvent) => {
-    // Vérifier si on a cliqué sur un élément de contrôle
+  const touchGestures = useTouchGestures(
+    actions.seek,
+    actions.setVolume,
+    actions.togglePlay,
+    actions.skip,
+    state.currentTime,
+    state.duration,
+    state.volume,
+  );
+
+  const handleContainerTouch = (e: React.TouchEvent) => {
     const target = e.target as HTMLElement;
 
-    // Exclure tous les éléments de contrôles
     if (
-      target.closest(".settings-menu") ||
+      target.closest("[data-controls]") ||
       target.closest("button") ||
-      target.closest("input") ||
-      target.closest("[data-controls]") // On va ajouter cette class
+      target.closest("input")
     ) {
       return;
     }
 
-    // Si on clique ailleurs, toggle play
-    actions.togglePlay();
+    touchGestures.handleTouchStart(e);
   };
 
-  const handleVideoClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    actions.togglePlay();
+  const handleContainerTouchMove = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+
+    if (
+      target.closest("[data-controls]") ||
+      target.closest("button") ||
+      target.closest("input")
+    ) {
+      return;
+    }
+
+    touchGestures.handleTouchMove(e);
+  };
+
+  const handleContainerTouchEnd = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+
+    if (
+      target.closest("[data-controls]") ||
+      target.closest("button") ||
+      target.closest("input")
+    ) {
+      return;
+    }
+
+    touchGestures.handleTouchEnd(e);
   };
 
   return (
     <div className="space-y-4">
       <div
         ref={containerRef}
-        className={`relative bg-black rounded-lg overflow-hidden group ${className || ""}`}
+        className={`relative bg-black rounded-lg overflow-hidden group touch-manipulation ${className || ""}`}
         onMouseMove={actions.showControlsTemporarily}
         onMouseEnter={actions.showControlsTemporarily}
-        onClick={handleContainerClick}
+        onTouchStart={handleContainerTouch}
+        onTouchMove={handleContainerTouchMove}
+        onTouchEnd={handleContainerTouchEnd}
       >
         <video
           ref={videoRef}
@@ -60,8 +92,9 @@ export const VideoPlayer = ({
           }
           poster={poster}
           className="w-full h-full object-contain"
-          onClick={handleVideoClick}
           onDoubleClick={actions.toggleFullscreen}
+          playsInline
+          preload="metadata"
         />
 
         <Controls

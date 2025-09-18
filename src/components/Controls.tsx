@@ -53,16 +53,10 @@ export const Controls = ({
   const progressPercentage = (state.currentTime / state.duration) * 100 || 0;
   const bufferedPercentage = (state.buffered / state.duration) * 100 || 0;
 
-  const handleTouchStart = (e: React.TouchEvent, action: () => void) => {
-    e.preventDefault();
-    e.stopPropagation();
-    action();
-  };
-
   return (
     <>
       {state.loading && (
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="bg-black/30 backdrop-blur-sm rounded-full p-2">
             <Loader2 className="w-5 h-5 text-white animate-spin" />
           </div>
@@ -71,37 +65,32 @@ export const Controls = ({
 
       {state.showControls && (
         <>
-          {/* Central mobile controls (small, iOS-like) */}
           <div className="md:hidden absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
               className="flex items-center justify-center gap-6 pointer-events-auto"
               data-controls
             >
               <button
-                onClick={(e) => {
-                  e.preventDefault();
+                onTouchEnd={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   onSkip(-10);
                 }}
-                onTouchStart={(e) => handleTouchStart(e, () => onSkip(-10))}
-                onTouchEnd={(e) => e.stopPropagation()}
                 data-controls
-                className="flex flex-col items-center justify-center w-9 h-9 text-white/80 bg-black/15 backdrop-blur-sm rounded-full border border-white/5 active:scale-90 transition-all duration-100 shadow-md"
+                className="flex flex-col items-center justify-center w-9 h-9 text-white/80 bg-black/15 backdrop-blur-sm rounded-full border border-white/5 active:scale-90 transition-all duration-100 shadow-md touch-manipulation"
               >
                 <RotateCcw className="w-3.5 h-3.5 mb-0.5" />
                 <span className="text-xs font-medium leading-none">10</span>
               </button>
 
               <button
-                onClick={(e) => {
-                  e.preventDefault();
+                onTouchEnd={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   onTogglePlay();
                 }}
-                onTouchStart={(e) => handleTouchStart(e, onTogglePlay)}
-                onTouchEnd={(e) => e.stopPropagation()}
                 data-controls
-                className="flex items-center justify-center w-12 h-12 text-black bg-white/90 backdrop-blur-sm rounded-full active:scale-90 transition-all duration-100 shadow-lg border border-white/10"
+                className="flex items-center justify-center w-12 h-12 text-black bg-white/90 backdrop-blur-sm rounded-full active:scale-90 transition-all duration-100 shadow-lg border border-white/10 touch-manipulation"
               >
                 {state.playing ? (
                   <Pause className="w-4 h-4" />
@@ -111,15 +100,13 @@ export const Controls = ({
               </button>
 
               <button
-                onClick={(e) => {
-                  e.preventDefault();
+                onTouchEnd={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   onSkip(10);
                 }}
-                onTouchStart={(e) => handleTouchStart(e, () => onSkip(10))}
-                onTouchEnd={(e) => e.stopPropagation()}
                 data-controls
-                className="flex flex-col items-center justify-center w-9 h-9 text-white/80 bg-black/15 backdrop-blur-sm rounded-full border border-white/5 active:scale-90 transition-all duration-100 shadow-md"
+                className="flex flex-col items-center justify-center w-9 h-9 text-white/80 bg-black/15 backdrop-blur-sm rounded-full border border-white/5 active:scale-90 transition-all duration-100 shadow-md touch-manipulation"
               >
                 <RotateCw className="w-3.5 h-3.5 mb-0.5" />
                 <span className="text-xs font-medium leading-none">10</span>
@@ -127,17 +114,21 @@ export const Controls = ({
             </div>
           </div>
 
-          {/* Overlay gradient, top-right fullscreen, bottom controls */}
           <div className="absolute inset-0 transition-all duration-300 ease-out pointer-events-none">
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
 
-            <div className="absolute top-3 right-3 pointer-events-auto">
+            <div
+              className="absolute top-3 right-3 pointer-events-auto"
+              data-controls
+            >
               <button
-                onClick={(e) => {
+                onTouchEnd={(e) => {
                   e.stopPropagation();
+                  e.preventDefault();
                   onToggleFullscreen();
                 }}
-                className="p-2 rounded-full bg-black/20 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/40 transition-all shadow-md border border-white/5"
+                onClick={onToggleFullscreen}
+                className="p-2 rounded-full bg-black/20 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/40 transition-all shadow-md border border-white/5 touch-manipulation"
               >
                 {state.fullscreen ? (
                   <Minimize className="w-4 h-4" />
@@ -147,7 +138,10 @@ export const Controls = ({
               </button>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 pointer-events-auto">
+            <div
+              className="absolute bottom-0 left-0 right-0 p-3 md:p-4 pointer-events-auto"
+              data-controls
+            >
               <div className="relative mb-3 group">
                 <div className="w-full h-1 bg-white/15 rounded-full overflow-hidden">
                   <div
@@ -169,18 +163,20 @@ export const Controls = ({
                     e.stopPropagation();
                     onSeek(Number(e.target.value));
                   }}
-                  className="absolute inset-0 w-full h-6 opacity-0 cursor-pointer"
+                  className="absolute inset-0 w-full h-6 opacity-0 cursor-pointer touch-manipulation"
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 md:gap-3">
                   <button
-                    onClick={(e) => {
+                    onTouchEnd={(e) => {
                       e.stopPropagation();
+                      e.preventDefault();
                       onTogglePlay();
                     }}
-                    className="hidden md:flex items-center justify-center p-1.5 text-white/80 hover:text-white transition-all rounded-md hover:bg-white/10"
+                    onClick={onTogglePlay}
+                    className="hidden md:flex items-center justify-center p-1.5 text-white/80 hover:text-white transition-all rounded-md hover:bg-white/10 touch-manipulation"
                   >
                     {state.playing ? (
                       <Pause className="w-4 h-4" />
@@ -191,20 +187,24 @@ export const Controls = ({
 
                   <div className="hidden md:flex items-center gap-1">
                     <button
-                      onClick={(e) => {
+                      onTouchEnd={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
                         onSkip(-10);
                       }}
-                      className="p-1.5 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10"
+                      onClick={() => onSkip(-10)}
+                      className="p-1.5 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10 touch-manipulation"
                     >
                       <RotateCcw className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={(e) => {
+                      onTouchEnd={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
                         onSkip(10);
                       }}
-                      className="p-1.5 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10"
+                      onClick={() => onSkip(10)}
+                      className="p-1.5 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10 touch-manipulation"
                     >
                       <RotateCw className="w-3.5 h-3.5" />
                     </button>
@@ -212,11 +212,13 @@ export const Controls = ({
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={(e) => {
+                      onTouchEnd={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
                         onToggleMute();
                       }}
-                      className="p-1.5 text-white/70 hover:text-white transition-all rounded-md hover:bg-white/10"
+                      onClick={onToggleMute}
+                      className="p-1.5 text-white/70 hover:text-white transition-all rounded-md hover:bg-white/10 touch-manipulation"
                     >
                       {state.muted || state.volume === 0 ? (
                         <VolumeX className="w-4 h-4" />
@@ -245,7 +247,7 @@ export const Controls = ({
                             e.stopPropagation();
                             onVolumeChange(Number(e.target.value));
                           }}
-                          className="absolute inset-0 w-full h-4 opacity-0 cursor-pointer"
+                          className="absolute inset-0 w-full h-4 opacity-0 cursor-pointer touch-manipulation"
                         />
                       </div>
                     </div>
@@ -260,11 +262,13 @@ export const Controls = ({
                 <div className="flex items-center gap-1">
                   <div className="relative">
                     <button
-                      onClick={(e) => {
+                      onTouchEnd={(e) => {
                         e.stopPropagation();
+                        e.preventDefault();
                         setShowSettings(!showSettings);
                       }}
-                      className="p-2 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10"
+                      onClick={() => setShowSettings(!showSettings)}
+                      className="p-2 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10 touch-manipulation"
                     >
                       <Settings className="w-4 h-4" />
                     </button>
@@ -281,11 +285,13 @@ export const Controls = ({
                   </div>
 
                   <button
-                    onClick={(e) => {
+                    onTouchEnd={(e) => {
                       e.stopPropagation();
+                      e.preventDefault();
                       onToggleFullscreen();
                     }}
-                    className="md:hidden p-2 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10"
+                    onClick={onToggleFullscreen}
+                    className="md:hidden p-2 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10 touch-manipulation"
                   >
                     {state.fullscreen ? (
                       <Minimize className="w-4 h-4" />

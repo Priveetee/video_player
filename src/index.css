@@ -1,6 +1,46 @@
+/* src/index.css */
 @import "tailwindcss";
 
-/* Custom slider styles */
+.touch-manipulation {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+video {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+button {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px;
+    min-width: 44px;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+input[type="range"] {
+    touch-action: pan-x;
+    min-height: 44px;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+[data-controls] {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+@media (max-width: 768px) {
+    .group:hover .group-hover\:opacity-100 {
+        opacity: 1;
+    }
+}
+
 .slider {
     background: linear-gradient(
         to right,
@@ -44,7 +84,6 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Hide default range track */
 .slider::-webkit-slider-track {
     background: transparent;
 }
@@ -53,12 +92,10 @@
     background: transparent;
 }
 
-/* Smooth animations */
 * {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Custom scrollbar for settings menu */
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -68,7 +105,6 @@
     display: none;
 }
 
-/* Backdrop blur support */
 @supports (backdrop-filter: blur(10px)) {
     .backdrop-blur-sm {
         backdrop-filter: blur(4px);
@@ -76,6 +112,14 @@
 
     .backdrop-blur {
         backdrop-filter: blur(8px);
+    }
+
+    .backdrop-blur-md {
+        backdrop-filter: blur(12px);
+    }
+
+    .backdrop-blur-xl {
+        backdrop-filter: blur(24px);
     }
 }
 
@@ -92,20 +136,6 @@
 
 .animate-slide-up {
     animation: slide-up 0.3s ease-out;
-}
-
-@supports (backdrop-filter: blur(10px)) {
-    .backdrop-blur-sm {
-        backdrop-filter: blur(4px);
-    }
-
-    .backdrop-blur-md {
-        backdrop-filter: blur(12px);
-    }
-
-    .backdrop-blur-xl {
-        backdrop-filter: blur(24px);
-    }
 }
 
 @keyframes scale-in {

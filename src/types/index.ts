@@ -1,14 +1,8 @@
+// src/types/index.ts
 export interface VideoQuality {
   label: string;
   url: string;
   quality: number;
-}
-
-export interface VideoPlayerProps {
-  src: string | VideoQuality[];
-  poster?: string;
-  title?: string;
-  className?: string;
 }
 
 export interface PlayerState {
@@ -24,11 +18,18 @@ export interface PlayerState {
   loading: boolean;
 }
 
+export interface VideoPlayerProps {
+  src: string | VideoQuality[];
+  poster?: string;
+  title?: string;
+  className?: string;
+}
+
 export interface TouchState {
   startX: number;
   startY: number;
   startTime: number;
   isDragging: boolean;
   isVertical: boolean;
-  action: "seek" | "volume" | "brightness" | null;
+  action: "seek" | "volume" | null;
 }
