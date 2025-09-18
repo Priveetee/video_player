@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+/* Custom slider styles */
+.slider {
+    background: linear-gradient(
+        to right,
+        #ef4444 0%,
+        #ef4444 var(--value, 0%),
+        rgba(255, 255, 255, 0.3) var(--value, 0%),
+        rgba(255, 255, 255, 0.3) 100%
+    );
+}
+
+.slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    border: 2px solid #ef4444;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    border: 2px solid #ef4444;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Hide default range track */
+.slider::-webkit-slider-track {
+    background: transparent;
+}
+
+.slider::-moz-range-track {
+    background: transparent;
+}
+
+/* Smooth animations */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom scrollbar for settings menu */
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+/* Backdrop blur support */
+@supports (backdrop-filter: blur(10px)) {
+    .backdrop-blur-sm {
+        backdrop-filter: blur(4px);
+    }
+
+    .backdrop-blur {
+        backdrop-filter: blur(8px);
+    }
+}
