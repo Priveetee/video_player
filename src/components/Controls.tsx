@@ -1,3 +1,4 @@
+// src/components/Controls.tsx
 import {
   Play,
   Pause,
@@ -12,7 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { PlayerState, VideoQuality } from "../types";
-import { SettingsModal } from "./SettingsModal";
+import { SettingsDropdown } from "./SettingsDropdown";
 
 interface ControlsProps {
   state: PlayerState;
@@ -56,79 +57,81 @@ export const Controls = ({
     <>
       {state.loading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-          <div className="bg-black/80 rounded-full p-4">
-            <Loader2 className="w-8 h-8 text-white animate-spin" />
+          <div className="bg-black/60 backdrop-blur-sm rounded-full p-3">
+            <Loader2 className="w-6 h-6 text-white animate-spin" />
           </div>
         </div>
       )}
 
-      {/* Mobile Center Controls */}
       <div
         className={`md:hidden absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${
           state.showControls ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
-        <div className="flex items-center gap-12">
+        <div className="flex items-center gap-10">
           <button
-            onClick={() => onSkip(-10)}
-            className="flex flex-col items-center justify-center w-14 h-14 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-all duration-200 active:scale-95"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSkip(-10);
+            }}
+            className="flex flex-col items-center justify-center w-12 h-12 text-white bg-black/40 backdrop-blur-sm rounded-full active:scale-95 transition-transform"
           >
-            <RotateCcw className="w-6 h-6" />
-            <span className="text-[10px] mt-1">10</span>
+            <RotateCcw className="w-5 h-5" />
+            <span className="text-[9px] mt-0.5">10</span>
           </button>
 
           <button
-            onClick={onTogglePlay}
-            className="flex items-center justify-center w-20 h-20 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-all duration-200 active:scale-95"
+            onClick={(e) => {
+              e.stopPropagation();
+              onTogglePlay();
+            }}
+            className="flex items-center justify-center w-16 h-16 text-white bg-black/40 backdrop-blur-sm rounded-full active:scale-95 transition-transform"
           >
             {state.playing ? (
-              <Pause className="w-10 h-10" />
+              <Pause className="w-7 h-7" />
             ) : (
-              <Play className="w-10 h-10 ml-1" />
+              <Play className="w-7 h-7 ml-0.5" />
             )}
           </button>
 
           <button
-            onClick={() => onSkip(10)}
-            className="flex flex-col items-center justify-center w-14 h-14 text-white bg-black/40 backdrop-blur-sm rounded-full hover:bg-black/60 transition-all duration-200 active:scale-95"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSkip(10);
+            }}
+            className="flex flex-col items-center justify-center w-12 h-12 text-white bg-black/40 backdrop-blur-sm rounded-full active:scale-95 transition-transform"
           >
-            <RotateCw className="w-6 h-6" />
-            <span className="text-[10px] mt-1">10</span>
+            <RotateCw className="w-5 h-5" />
+            <span className="text-[9px] mt-0.5">10</span>
           </button>
         </div>
       </div>
 
-      {/* Main Controls */}
       <div
-        className={`absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent transition-opacity duration-300 ${
+        className={`absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-300 ${
           state.showControls ? "opacity-100" : "opacity-0"
         }`}
       >
-        {/* Top right fullscreen only */}
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-3 right-3">
           <button
             onClick={onToggleFullscreen}
-            className="text-white/60 hover:text-white transition-colors p-2 rounded-full hover:bg-black/30"
+            className="text-white/70 hover:text-white transition-colors p-2 rounded-full hover:bg-black/20"
           >
             {state.fullscreen ? (
-              <Minimize className="w-5 h-5" />
+              <Minimize className="w-4 h-4" />
             ) : (
-              <Maximize className="w-5 h-5" />
+              <Maximize className="w-4 h-4" />
             )}
           </button>
         </div>
 
-        {/* Bottom controls */}
-        <div className="absolute bottom-0 left-0 right-0 p-4">
-          {/* Progress Bar - YouTube Style amélioré */}
-          <div className="relative mb-4 group cursor-pointer">
-            <div className="w-full h-1 bg-white/25 rounded-full overflow-hidden group-hover:h-1.5 transition-all duration-200">
-              {/* Buffered */}
+        <div className="absolute bottom-0 left-0 right-0 p-3">
+          <div className="relative mb-3 group cursor-pointer">
+            <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden group-hover:h-1.5 transition-all duration-200">
               <div
-                className="absolute top-0 h-full bg-white/40 rounded-full transition-all duration-300"
+                className="absolute top-0 h-full bg-white/30 rounded-full transition-all duration-300"
                 style={{ width: `${bufferedPercentage}%` }}
               />
-              {/* Progress - YouTube Red Clean */}
               <div
                 className="absolute top-0 h-full bg-red-600 rounded-full transition-all duration-100"
                 style={{ width: `${progressPercentage}%` }}
@@ -143,56 +146,52 @@ export const Controls = ({
               onChange={(e) =>
                 onSeek(Number((e.target as HTMLInputElement).value))
               }
-              className="absolute inset-0 w-full h-6 opacity-0 cursor-pointer"
+              className="absolute inset-0 w-full h-5 opacity-0 cursor-pointer"
             />
           </div>
 
           <div className="flex items-center justify-between">
-            {/* Left controls */}
-            <div className="flex items-center gap-4">
-              {/* Desktop Play/Pause */}
+            <div className="flex items-center gap-3">
               <button
                 onClick={onTogglePlay}
                 className="hidden md:flex items-center justify-center text-white hover:text-red-500 transition-colors p-1"
               >
                 {state.playing ? (
-                  <Pause className="w-6 h-6" />
+                  <Pause className="w-5 h-5" />
                 ) : (
-                  <Play className="w-6 h-6" />
+                  <Play className="w-5 h-5" />
                 )}
               </button>
 
-              {/* Desktop Skip buttons */}
-              <div className="hidden md:flex items-center gap-2">
+              <div className="hidden md:flex items-center gap-1">
                 <button
                   onClick={() => onSkip(-10)}
-                  className="text-white/70 hover:text-white transition-colors p-1 rounded hover:bg-white/10"
+                  className="text-white/70 hover:text-white transition-colors p-1.5 rounded hover:bg-white/10"
                 >
-                  <RotateCcw className="w-5 h-5" />
+                  <RotateCcw className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => onSkip(10)}
-                  className="text-white/70 hover:text-white transition-colors p-1 rounded hover:bg-white/10"
+                  className="text-white/70 hover:text-white transition-colors p-1.5 rounded hover:bg-white/10"
                 >
-                  <RotateCw className="w-5 h-5" />
+                  <RotateCw className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Volume */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={onToggleMute}
-                  className="text-white hover:text-red-500 transition-colors"
+                  className="text-white hover:text-red-500 transition-colors p-1"
                 >
                   {state.muted || state.volume === 0 ? (
-                    <VolumeX className="w-5 h-5" />
+                    <VolumeX className="w-4 h-4" />
                   ) : (
-                    <Volume2 className="w-5 h-5" />
+                    <Volume2 className="w-4 h-4" />
                   )}
                 </button>
 
                 <div className="hidden sm:flex items-center">
-                  <div className="relative w-20">
+                  <div className="relative w-16">
                     <div className="h-1 bg-white/30 rounded-full">
                       <div
                         className="h-full bg-white rounded-full transition-all duration-100"
@@ -212,54 +211,54 @@ export const Controls = ({
                           Number((e.target as HTMLInputElement).value),
                         )
                       }
-                      className="absolute inset-0 w-full h-4 opacity-0 cursor-pointer"
+                      className="absolute inset-0 w-full h-3 opacity-0 cursor-pointer"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Time */}
-              <div className="text-white text-sm font-medium">
+              <div className="text-white/90 text-xs font-medium">
                 {formatTime(state.currentTime)} / {formatTime(state.duration)}
               </div>
             </div>
 
-            {/* Right controls */}
-            <div className="flex items-center gap-3">
-              {/* Settings */}
-              <button
-                onClick={() => setShowSettings(!showSettings)}
-                className="text-white/70 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
-              >
-                <Settings className="w-5 h-5" />
-              </button>
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowSettings(!showSettings);
+                  }}
+                  className="text-white/70 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10"
+                >
+                  <Settings className="w-4 h-4" />
+                </button>
 
-              {/* Fullscreen - Mobile */}
+                <SettingsDropdown
+                  isOpen={showSettings}
+                  onClose={() => setShowSettings(false)}
+                  currentSpeed={playbackSpeed}
+                  currentQuality={state.quality}
+                  qualities={qualities}
+                  onSpeedChange={onSpeedChange}
+                  onQualityChange={onQualityChange}
+                />
+              </div>
+
               <button
                 onClick={onToggleFullscreen}
-                className="md:hidden text-white/70 hover:text-white transition-colors p-2 rounded-full hover:bg-white/10"
+                className="md:hidden text-white/70 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10"
               >
                 {state.fullscreen ? (
-                  <Minimize className="w-5 h-5" />
+                  <Minimize className="w-4 h-4" />
                 ) : (
-                  <Maximize className="w-5 h-5" />
+                  <Maximize className="w-4 h-4" />
                 )}
               </button>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Settings Modal */}
-      <SettingsModal
-        isOpen={showSettings}
-        onClose={() => setShowSettings(false)}
-        currentSpeed={playbackSpeed}
-        currentQuality={state.quality}
-        qualities={qualities}
-        onSpeedChange={onSpeedChange}
-        onQualityChange={onQualityChange}
-      />
     </>
   );
 };

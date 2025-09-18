@@ -1,3 +1,4 @@
+// src/hooks/usePlayer.ts
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { PlayerState, VideoQuality } from "../types";
 

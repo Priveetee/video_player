@@ -1,3 +1,4 @@
+// src/components/VideoPlayer.tsx
 import { useMemo } from "react";
 import type { VideoPlayerProps } from "../types";
 import { usePlayer } from "../hooks/usePlayer";
@@ -19,7 +20,11 @@ export const VideoPlayer = ({
   const { videoRef, containerRef, state, playbackSpeed, actions } =
     usePlayer(qualities);
 
-  const handleContainerClick = () => {
+  const handleContainerClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest(".settings-menu")) {
+      return;
+    }
+
     if (state.playing) {
       actions.showControlsTemporarily();
     } else {
@@ -68,7 +73,6 @@ export const VideoPlayer = ({
         />
       </div>
 
-      {/* Titre en dessous - propre */}
       {title && (
         <div className="px-2">
           <h1 className="text-white text-xl font-bold mb-2">{title}</h1>
