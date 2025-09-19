@@ -15,20 +15,46 @@ import { useState } from "react";
 import type { PlayerState, VideoQuality } from "../types";
 import { SettingsDropdown } from "./SettingsDropdown";
 
+/**
+ * Props for the Controls component
+ */
 interface ControlsProps {
+  /** Current player state */
   state: PlayerState;
+  /** Available video quality options */
   qualities: VideoQuality[];
+  /** Callback to toggle play/pause */
   onTogglePlay: () => void;
+  /** Callback to toggle mute */
   onToggleMute: () => void;
+  /** Callback to change volume (0-1) */
   onVolumeChange: (volume: number) => void;
+  /** Callback to seek to specific time */
   onSeek: (time: number) => void;
+  /** Callback to skip forward/backward in seconds */
   onSkip: (seconds: number) => void;
+  /** Callback to toggle fullscreen mode */
   onToggleFullscreen: () => void;
+  /** Callback to change video quality */
   onQualityChange: (quality: VideoQuality) => void;
+  /** Callback to change playback speed */
   onSpeedChange: (speed: number) => void;
+  /** Current playback speed multiplier */
   playbackSpeed: number;
 }
 
+/**
+ * Video player controls overlay component.
+ * 
+ * Features:
+ * - Play/pause button with loading indicator
+ * - Skip forward/backward buttons (10s)
+ * - Seek bar with buffering indication
+ * - Volume control with slider
+ * - Fullscreen toggle
+ * - Settings dropdown for quality and speed
+ * - Touch-optimized interface
+ */
 export const Controls = ({
   state,
   qualities,

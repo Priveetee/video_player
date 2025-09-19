@@ -5,6 +5,21 @@ import { usePlayer } from "../hooks/usePlayer";
 import { useTouchGestures } from "../hooks/useTouchGestures";
 import { Controls } from "./Controls";
 
+/**
+ * Modern video player component with touch gestures, quality selection, and fullscreen support.
+ * 
+ * Features:
+ * - Touch gesture controls (tap to play/pause, swipe to seek/volume)
+ * - Multiple quality options
+ * - Fullscreen support
+ * - Custom playback speed
+ * - Mobile-optimized interface
+ * 
+ * @param src - Video source URL or array of quality options
+ * @param poster - Optional poster image URL
+ * @param title - Optional video title displayed below player
+ * @param className - Additional CSS classes for styling
+ */
 export const VideoPlayer = ({
   src,
   poster,
