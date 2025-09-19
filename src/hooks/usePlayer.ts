@@ -1,7 +1,21 @@
-// src/hooks/usePlayer.ts - VERSION FINALE NETTOYÉE
+// src/hooks/usePlayer.ts
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { PlayerState, VideoQuality } from "../types";
 
+/**
+ * Custom hook for managing video player state and interactions.
+ * 
+ * Handles:
+ * - Video playback controls (play, pause, seek, volume)
+ * - Fullscreen mode
+ * - Quality switching
+ * - Playback speed control
+ * - Loading states and buffering
+ * - Auto-hiding controls
+ * 
+ * @param qualities - Array of available video quality options
+ * @returns Object containing video refs, state, and action functions
+ */
 export const usePlayer = (qualities: VideoQuality[] = []) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);

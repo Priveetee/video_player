@@ -2,6 +2,25 @@
 import { useRef, useCallback } from "react";
 import type { TouchState } from "../types";
 
+/**
+ * Custom hook for handling touch gestures on the video player.
+ * 
+ * Gesture Controls:
+ * - Center tap: Play/pause toggle
+ * - Left side tap: Skip backward 10 seconds
+ * - Right side tap: Skip forward 10 seconds
+ * - Horizontal swipe: Seek through timeline
+ * - Vertical swipe: Adjust volume
+ * 
+ * @param onSeek - Function to seek to specific time
+ * @param onVolumeChange - Function to change volume
+ * @param onTogglePlay - Function to toggle play/pause
+ * @param onSkip - Function to skip forward/backward
+ * @param currentTime - Current playback time
+ * @param duration - Total video duration
+ * @param volume - Current volume level
+ * @returns Object with touch event handlers
+ */
 export const useTouchGestures = (
   onSeek: (time: number) => void,
   onVolumeChange: (volume: number) => void,
