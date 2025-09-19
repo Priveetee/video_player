@@ -67,7 +67,7 @@ export const Controls = ({
         <>
           <div className="md:hidden absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
-              className="flex items-center justify-center gap-6 pointer-events-auto"
+              className="flex items-center justify-center gap-8 pointer-events-auto"
               data-controls
             >
               <button
@@ -77,10 +77,10 @@ export const Controls = ({
                   onSkip(-10);
                 }}
                 data-controls
-                className="flex flex-col items-center justify-center w-9 h-9 text-white/80 bg-black/15 backdrop-blur-sm rounded-full border border-white/5 active:scale-90 transition-all duration-100 shadow-md touch-manipulation"
+                className="flex flex-col items-center justify-center w-14 h-14 text-white/80 bg-black/15 backdrop-blur-sm rounded-full border border-white/5 active:scale-90 transition-all duration-100 shadow-md touch-manipulation"
               >
-                <RotateCcw className="w-3.5 h-3.5 mb-0.5" />
-                <span className="text-xs font-medium leading-none">10</span>
+                <RotateCcw className="w-5 h-5 mb-0.5" />
+                <span className="text-sm font-medium leading-none">10</span>
               </button>
 
               <button
@@ -90,12 +90,12 @@ export const Controls = ({
                   onTogglePlay();
                 }}
                 data-controls
-                className="flex items-center justify-center w-12 h-12 text-black bg-white/90 backdrop-blur-sm rounded-full active:scale-90 transition-all duration-100 shadow-lg border border-white/10 touch-manipulation"
+                className="flex items-center justify-center w-16 h-16 text-black bg-white/90 backdrop-blur-sm rounded-full active:scale-90 transition-all duration-100 shadow-lg border border-white/10 touch-manipulation"
               >
                 {state.playing ? (
-                  <Pause className="w-4 h-4" />
+                  <Pause className="w-6 h-6" />
                 ) : (
-                  <Play className="w-4 h-4 ml-0.5" />
+                  <Play className="w-6 h-6 ml-0.5" />
                 )}
               </button>
 
@@ -106,10 +106,10 @@ export const Controls = ({
                   onSkip(10);
                 }}
                 data-controls
-                className="flex flex-col items-center justify-center w-9 h-9 text-white/80 bg-black/15 backdrop-blur-sm rounded-full border border-white/5 active:scale-90 transition-all duration-100 shadow-md touch-manipulation"
+                className="flex flex-col items-center justify-center w-14 h-14 text-white/80 bg-black/15 backdrop-blur-sm rounded-full border border-white/5 active:scale-90 transition-all duration-100 shadow-md touch-manipulation"
               >
-                <RotateCw className="w-3.5 h-3.5 mb-0.5" />
-                <span className="text-xs font-medium leading-none">10</span>
+                <RotateCw className="w-5 h-5 mb-0.5" />
+                <span className="text-sm font-medium leading-none">10</span>
               </button>
             </div>
           </div>
@@ -128,12 +128,12 @@ export const Controls = ({
                   onToggleFullscreen();
                 }}
                 onClick={onToggleFullscreen}
-                className="p-2 rounded-full bg-black/20 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/40 transition-all shadow-md border border-white/5 touch-manipulation"
+                className="p-2.5 md:p-2 rounded-full bg-black/20 backdrop-blur-sm text-white/80 hover:text-white hover:bg-black/40 transition-all shadow-md border border-white/5 touch-manipulation"
               >
                 {state.fullscreen ? (
-                  <Minimize className="w-4 h-4" />
+                  <Minimize className="w-5 h-5 md:w-4 md:h-4" />
                 ) : (
-                  <Maximize className="w-4 h-4" />
+                  <Maximize className="w-5 h-5 md:w-4 md:h-4" />
                 )}
               </button>
             </div>
@@ -218,12 +218,12 @@ export const Controls = ({
                         onToggleMute();
                       }}
                       onClick={onToggleMute}
-                      className="p-1.5 text-white/70 hover:text-white transition-all rounded-md hover:bg-white/10 touch-manipulation"
+                      className="p-2 md:p-1.5 text-white/70 hover:text-white transition-all rounded-md hover:bg-white/10 touch-manipulation"
                     >
                       {state.muted || state.volume === 0 ? (
-                        <VolumeX className="w-4 h-4" />
+                        <VolumeX className="w-5 h-5 md:w-4 md:h-4" />
                       ) : (
-                        <Volume2 className="w-4 h-4" />
+                        <Volume2 className="w-5 h-5 md:w-4 md:h-4" />
                       )}
                     </button>
 
@@ -253,7 +253,7 @@ export const Controls = ({
                     </div>
                   </div>
 
-                  <div className="text-white/70 text-xs md:text-sm font-mono">
+                  <div className="text-white/70 text-sm md:text-xs font-mono">
                     {formatTime(state.currentTime)} /{" "}
                     {formatTime(state.duration)}
                   </div>
@@ -268,9 +268,9 @@ export const Controls = ({
                         setShowSettings(!showSettings);
                       }}
                       onClick={() => setShowSettings(!showSettings)}
-                      className="p-2 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10 touch-manipulation"
+                      className="p-2.5 md:p-2 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10 touch-manipulation"
                     >
-                      <Settings className="w-4 h-4" />
+                      <Settings className="w-5 h-5 md:w-4 md:h-4" />
                     </button>
 
                     <SettingsDropdown
@@ -291,12 +291,12 @@ export const Controls = ({
                       onToggleFullscreen();
                     }}
                     onClick={onToggleFullscreen}
-                    className="md:hidden p-2 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10 touch-manipulation"
+                    className="md:hidden p-2.5 text-white/60 hover:text-white/80 transition-all rounded-md hover:bg-white/10 touch-manipulation"
                   >
                     {state.fullscreen ? (
-                      <Minimize className="w-4 h-4" />
+                      <Minimize className="w-5 h-5" />
                     ) : (
-                      <Maximize className="w-4 h-4" />
+                      <Maximize className="w-5 h-5" />
                     )}
                   </button>
                 </div>
