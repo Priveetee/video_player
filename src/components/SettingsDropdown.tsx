@@ -1,4 +1,3 @@
-// src/components/SettingsDropdown.tsx
 import { Check, ChevronRight, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { VideoQuality } from "../types";
@@ -36,16 +35,6 @@ export const SettingsDropdown = ({
   const [activeMenu, setActiveMenu] = useState<"main" | "speed" | "quality">(
     "main",
   );
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -67,63 +56,63 @@ export const SettingsDropdown = ({
     e.stopPropagation();
   };
 
-  // Version mobile compacte - plus de modal plein écran !
+  const isMobile = window.innerWidth < 768;
   if (isMobile) {
     return (
       <>
         <div
-          className="fixed inset-0 z-40"
+          className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
           onClick={handleBackdropClick}
           onTouchStart={handleBackdropClick}
         />
 
-        <div className="absolute bottom-full right-0 mb-2 z-50 w-72 max-w-[90vw]">
+        <div className="fixed bottom-0 left-0 right-0 z-50 animate-slide-up">
           <div
-            className="bg-gray-900/98 backdrop-blur-xl rounded-xl shadow-2xl border border-white/20 overflow-hidden animate-scale-in"
+            className="bg-gray-900/95 backdrop-blur-xl rounded-t-2xl border-t border-white/10 max-h-[80vh] overflow-hidden"
             onClick={handleMenuClick}
             onTouchStart={handleMenuClick}
           >
             {activeMenu === "main" && (
-              <div className="py-2">
-                <div className="px-4 py-2 border-b border-white/10">
+              <div className="py-4">
+                <div className="px-4 pb-4 border-b border-white/10">
                   <div className="flex items-center justify-between">
-                    <span className="text-white font-medium text-sm">
+                    <span className="text-white font-semibold text-base">
                       Paramètres
                     </span>
                     <button
                       onClick={onClose}
-                      className="p-1 rounded-full hover:bg-white/10 text-white/70"
+                      className="p-2 rounded-full hover:bg-white/10"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-5 h-5 text-white/70" />
                     </button>
                   </div>
                 </div>
 
-                <div className="py-1">
+                <div className="py-2">
                   <button
                     onClick={() => setActiveMenu("speed")}
-                    className="w-full flex items-center justify-between px-4 py-3 text-white hover:bg-white/10 transition-colors"
+                    className="w-full flex items-center justify-between px-4 py-4 text-white hover:bg-white/10 transition-colors"
                   >
-                    <span className="text-sm font-medium">
+                    <span className="text-base font-medium">
                       Vitesse de lecture
                     </span>
                     <div className="flex items-center gap-2 text-white/70">
                       <span className="text-sm">{currentSpeedLabel}</span>
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className="w-5 h-5" />
                     </div>
                   </button>
 
                   {qualities.length > 1 && (
                     <button
                       onClick={() => setActiveMenu("quality")}
-                      className="w-full flex items-center justify-between px-4 py-3 text-white hover:bg-white/10 transition-colors"
+                      className="w-full flex items-center justify-between px-4 py-4 text-white hover:bg-white/10 transition-colors"
                     >
-                      <span className="text-sm font-medium">Qualité</span>
+                      <span className="text-base font-medium">Qualité</span>
                       <div className="flex items-center gap-2 text-white/70">
                         <span className="text-sm">
                           {currentQuality?.label || "Auto"}
                         </span>
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronRight className="w-5 h-5" />
                       </div>
                     </button>
                   )}
@@ -132,64 +121,59 @@ export const SettingsDropdown = ({
             )}
 
             {activeMenu === "speed" && (
-              <div className="py-2">
-                <div className="px-4 py-2 border-b border-white/10">
+              <div className="py-2 max-h-80 overflow-y-auto">
+                <div className="px-4 py-3 border-b border-white/10">
                   <button
                     onClick={() => setActiveMenu("main")}
-                    className="text-white/70 hover:text-white text-sm font-medium"
+                    className="text-white/70 hover:text-white text-sm font-medium flex items-center"
                   >
-                    ← Vitesse de lecture
+                    <ChevronRight className="w-4 h-4 rotate-180 mr-2" /> Vitesse
+                    de lecture
                   </button>
                 </div>
-                <div className="max-h-60 overflow-y-auto">
-                  {speeds.map((speed) => (
-                    <button
-                      key={speed.value}
-                      onClick={() => {
-                        onSpeedChange(speed.value);
-                        onClose();
-                      }}
-                      className="w-full flex items-center justify-between px-4 py-3 text-white hover:bg-white/10 transition-colors"
-                    >
-                      <span className="text-sm font-medium">{speed.label}</span>
-                      {currentSpeed === speed.value && (
-                        <Check className="w-4 h-4 text-blue-400" />
-                      )}
-                    </button>
-                  ))}
-                </div>
+                {speeds.map((speed) => (
+                  <button
+                    key={speed.value}
+                    onClick={() => {
+                      onSpeedChange(speed.value);
+                      onClose();
+                    }}
+                    className="w-full flex items-center justify-between px-6 py-4 text-white hover:bg-white/10 transition-colors border-b border-white/5 last:border-b-0"
+                  >
+                    <span className="text-sm font-medium">{speed.label}</span>
+                    {currentSpeed === speed.value && (
+                      <Check className="w-5 h-5 text-blue-400" />
+                    )}
+                  </button>
+                ))}
               </div>
             )}
 
             {activeMenu === "quality" && (
-              <div className="py-2">
-                <div className="px-4 py-2 border-b border-white/10">
+              <div className="py-2 max-h-80 overflow-y-auto">
+                <div className="px-4 py-3 border-b border-white/10">
                   <button
                     onClick={() => setActiveMenu("main")}
-                    className="text-white/70 hover:text-white text-sm font-medium"
+                    className="text-white/70 hover:text-white text-sm font-medium flex items-center"
                   >
-                    ← Qualité
+                    <ChevronRight className="w-4 h-4 rotate-180 mr-2" /> Qualité
                   </button>
                 </div>
-                <div className="max-h-60 overflow-y-auto">
-                  {qualities.map((quality) => (
-                    <button
-                      key={quality.quality}
-                      onClick={() => {
-                        onQualityChange(quality);
-                        onClose();
-                      }}
-                      className="w-full flex items-center justify-between px-4 py-3 text-white hover:bg-white/10 transition-colors"
-                    >
-                      <span className="text-sm font-medium">
-                        {quality.label}
-                      </span>
-                      {currentQuality?.quality === quality.quality && (
-                        <Check className="w-4 h-4 text-blue-400" />
-                      )}
-                    </button>
-                  ))}
-                </div>
+                {qualities.map((quality) => (
+                  <button
+                    key={quality.quality}
+                    onClick={() => {
+                      onQualityChange(quality);
+                      onClose();
+                    }}
+                    className="w-full flex items-center justify-between px-6 py-4 text-white hover:bg-white/10 transition-colors border-b border-white/5 last:border-b-0"
+                  >
+                    <span className="text-sm font-medium">{quality.label}</span>
+                    {currentQuality?.quality === quality.quality && (
+                      <Check className="w-5 h-5 text-blue-400" />
+                    )}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -198,12 +182,11 @@ export const SettingsDropdown = ({
     );
   }
 
-  // Version desktop inchangée
   return (
     <>
       <div className="fixed inset-0 z-40" onClick={handleBackdropClick} />
 
-      <div className="settings-menu absolute bottom-full right-0 mb-3 z-50">
+      <div className="absolute bottom-0 right-0 mb-4 z-50">
         <div className="bg-gray-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 min-w-52 overflow-hidden">
           {activeMenu === "main" && (
             <div className="py-2">

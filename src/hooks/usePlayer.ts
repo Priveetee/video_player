@@ -1,4 +1,3 @@
-// src/hooks/usePlayer.ts - VERSION FINALE NETTOYÉE
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { PlayerState, VideoQuality } from "../types";
 
@@ -6,6 +5,7 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
   const [state, setState] = useState<PlayerState>({
@@ -21,10 +21,17 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
     loading: false,
   });
 
+  const vibrate = useCallback(() => {
+    if ("vibrate" in navigator) {
+      navigator.vibrate(50);
+    }
+  }, []);
+
   const togglePlay = useCallback(async () => {
     const video = videoRef.current;
     if (!video) return;
 
+    vibrate();
     try {
       if (video.paused) {
         await video.play();
@@ -34,46 +41,59 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
     } catch (error) {
       console.error("Toggle play failed:", error);
     }
-  }, []);
+  }, [vibrate]);
 
   const toggleMute = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
 
+    vibrate();
     video.muted = !video.muted;
-  }, []);
+  }, [vibrate]);
 
-  const setVolume = useCallback((volume: number) => {
-    const video = videoRef.current;
-    if (!video) return;
+  const setVolume = useCallback(
+    (volume: number) => {
+      const video = videoRef.current;
+      if (!video) return;
 
-    const clampedVolume = Math.max(0, Math.min(1, volume));
-    video.volume = clampedVolume;
-    if (clampedVolume === 0) {
-      video.muted = true;
-    } else if (video.muted) {
-      video.muted = false;
-    }
-  }, []);
+      vibrate();
+      const clampedVolume = Math.max(0, Math.min(1, volume));
+      video.volume = clampedVolume;
+      if (clampedVolume === 0) {
+        video.muted = true;
+      } else if (video.muted) {
+        video.muted = false;
+      }
+    },
+    [vibrate],
+  );
 
-  const seek = useCallback((time: number) => {
-    const video = videoRef.current;
-    if (!video) return;
+  const seek = useCallback(
+    (time: number) => {
+      const video = videoRef.current;
+      if (!video) return;
 
-    const clampedTime = Math.max(0, Math.min(time, video.duration || 0));
-    video.currentTime = clampedTime;
-  }, []);
+      vibrate();
+      const clampedTime = Math.max(0, Math.min(time, video.duration || 0));
+      video.currentTime = clampedTime;
+    },
+    [vibrate],
+  );
 
-  const skip = useCallback((seconds: number) => {
-    const video = videoRef.current;
-    if (!video) return;
+  const skip = useCallback(
+    (seconds: number) => {
+      const video = videoRef.current;
+      if (!video) return;
 
-    const newTime = Math.max(
-      0,
-      Math.min(video.currentTime + seconds, video.duration || 0),
-    );
-    video.currentTime = newTime;
-  }, []);
+      vibrate();
+      const newTime = Math.max(
+        0,
+        Math.min(video.currentTime + seconds, video.duration || 0),
+      );
+      video.currentTime = newTime;
+    },
+    [vibrate],
+  );
 
   const changeSpeed = useCallback((speed: number) => {
     const video = videoRef.current;
@@ -85,18 +105,28 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
 
   const toggleFullscreen = useCallback(async () => {
     const container = containerRef.current;
-    if (!container) return;
+    const video = videoRef.current;
+    if (!container || !video) return;
 
+    vibrate();
     try {
       if (!document.fullscreenElement) {
-        await container.requestFullscreen();
+        if (video.webkitSupportsFullscreen) {
+          await video.webkitEnterFullscreen();
+        } else {
+          await container.requestFullscreen();
+        }
       } else {
-        await document.exitFullscreen();
+        if (document.webkitFullscreenElement) {
+          await document.webkitExitFullscreen();
+        } else {
+          await document.exitFullscreen();
+        }
       }
     } catch (error) {
       console.error("Fullscreen error:", error);
     }
-  }, []);
+  }, [vibrate]);
 
   const changeQuality = useCallback((quality: VideoQuality) => {
     const video = videoRef.current;
@@ -106,6 +136,7 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
     const wasPlaying = !video.paused;
     const currentSpeed = video.playbackRate;
 
+    video.pause();
     setState((prev) => ({ ...prev, quality, loading: true }));
 
     video.src = quality.url;
@@ -142,7 +173,6 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
     }, 3000);
   }, []);
 
-  // Event listeners unifiés
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -163,10 +193,15 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
     const handleCanPlay = () => safeSetState({ loading: false });
 
     const handleTimeUpdate = () => {
-      safeSetState({
-        currentTime: video.currentTime,
-        duration: video.duration || 0,
-      });
+      if (timeUpdateTimeoutRef.current) {
+        clearTimeout(timeUpdateTimeoutRef.current);
+      }
+      timeUpdateTimeoutRef.current = setTimeout(() => {
+        safeSetState({
+          currentTime: video.currentTime,
+          duration: video.duration || 0,
+        });
+      }, 500);
     };
 
     const handleProgress = () => {
@@ -186,7 +221,6 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
 
     const handleError = () => safeSetState({ loading: false });
 
-    // Attacher les événements
     video.addEventListener("play", handlePlay);
     video.addEventListener("pause", handlePause);
     video.addEventListener("loadstart", handleLoadStart);
@@ -200,6 +234,8 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
 
     return () => {
       mounted = false;
+      if (timeUpdateTimeoutRef.current)
+        clearTimeout(timeUpdateTimeoutRef.current);
       video.removeEventListener("play", handlePlay);
       video.removeEventListener("pause", handlePause);
       video.removeEventListener("loadstart", handleLoadStart);
@@ -213,25 +249,34 @@ export const usePlayer = (qualities: VideoQuality[] = []) => {
     };
   }, []);
 
-  // Fullscreen
   useEffect(() => {
     const handleFullscreenChange = () => {
       setState((prev) => ({
         ...prev,
-        fullscreen: !!document.fullscreenElement,
+        fullscreen: !!(
+          document.fullscreenElement || document.webkitFullscreenElement
+        ),
       }));
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () =>
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+    return () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener(
+        "webkitfullscreenchange",
+        handleFullscreenChange,
+      );
+    };
   }, []);
 
-  // Cleanup
   useEffect(() => {
     return () => {
       if (controlsTimeoutRef.current) {
         clearTimeout(controlsTimeoutRef.current);
+      }
+      if (timeUpdateTimeoutRef.current) {
+        clearTimeout(timeUpdateTimeoutRef.current);
       }
     };
   }, []);

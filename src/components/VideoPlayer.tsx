@@ -1,8 +1,6 @@
-// src/components/VideoPlayer.tsx
 import { useMemo } from "react";
 import type { VideoPlayerProps } from "../types";
 import { usePlayer } from "../hooks/usePlayer";
-import { useTouchGestures } from "../hooks/useTouchGestures";
 import { Controls } from "./Controls";
 
 export const VideoPlayer = ({
@@ -21,19 +19,8 @@ export const VideoPlayer = ({
   const { videoRef, containerRef, state, playbackSpeed, actions } =
     usePlayer(qualities);
 
-  const touchGestures = useTouchGestures(
-    actions.seek,
-    actions.setVolume,
-    actions.togglePlay,
-    actions.skip,
-    state.currentTime,
-    state.duration,
-    state.volume,
-  );
-
-  const handleContainerTouch = (e: React.TouchEvent) => {
+  const handleContainerClick = (e: React.MouseEvent | React.TouchEvent) => {
     const target = e.target as HTMLElement;
-
     if (
       target.closest("[data-controls]") ||
       target.closest("button") ||
@@ -41,48 +28,17 @@ export const VideoPlayer = ({
     ) {
       return;
     }
-
-    touchGestures.handleTouchStart(e);
-  };
-
-  const handleContainerTouchMove = (e: React.TouchEvent) => {
-    const target = e.target as HTMLElement;
-
-    if (
-      target.closest("[data-controls]") ||
-      target.closest("button") ||
-      target.closest("input")
-    ) {
-      return;
-    }
-
-    touchGestures.handleTouchMove(e);
-  };
-
-  const handleContainerTouchEnd = (e: React.TouchEvent) => {
-    const target = e.target as HTMLElement;
-
-    if (
-      target.closest("[data-controls]") ||
-      target.closest("button") ||
-      target.closest("input")
-    ) {
-      return;
-    }
-
-    touchGestures.handleTouchEnd(e);
+    actions.togglePlay();
   };
 
   return (
     <div className="space-y-4">
       <div
         ref={containerRef}
-        className={`relative bg-black rounded-lg overflow-hidden group touch-manipulation ${className || ""}`}
+        className={`relative bg-black rounded-lg overflow-hidden aspect-video w-full max-w-full group touch-manipulation ${className || ""}`}
         onMouseMove={actions.showControlsTemporarily}
         onMouseEnter={actions.showControlsTemporarily}
-        onTouchStart={handleContainerTouch}
-        onTouchMove={handleContainerTouchMove}
-        onTouchEnd={handleContainerTouchEnd}
+        onClick={handleContainerClick}
       >
         <video
           ref={videoRef}
@@ -91,10 +47,12 @@ export const VideoPlayer = ({
             (typeof src === "string" ? src : qualities[0]?.url)
           }
           poster={poster}
-          className="w-full h-full object-contain"
+          className="absolute inset-0 w-full h-full object-contain"
           onDoubleClick={actions.toggleFullscreen}
           playsInline
           preload="metadata"
+          muted={state.muted}
+          onClick={(e) => e.stopPropagation()}
         />
 
         <Controls
