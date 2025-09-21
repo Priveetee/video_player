@@ -1,6 +1,6 @@
 # Video Player
 
-This project exist because I was looking for a Video Player but I found Nothing sure there is some Libairy but I found them outdated and Ugly so I make one myself and make the repo public so Maybe someday someone will find it useful.
+This project exist because I was looking for a Video Player but I found Nothing sure there is some library but I found them outdated and Ugly so I make one myself and make the repo public so Maybe someday someone will find it useful.
 
 I have tested It on Iphone with Safari and Android with Vanadium and Iceraven and Of course my pc with the latest release of Chromium with no modifications.
 
